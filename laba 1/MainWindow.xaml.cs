@@ -100,7 +100,7 @@ namespace laba_1
             }
             if (selectedIcon == null)
             {
-                MessageBox.Show("Выбери иконку в сетке справа.");
+                MessageBox.Show("Выбери иконку в сетке.");
                 return;
             }
 
@@ -167,6 +167,56 @@ namespace laba_1
             EnemiesListBox.ItemsSource = enemyList.GetListOfEnemyNames();
             EnemyInfoTextBlock.Text = "";
         }
+
+        // ---------- JSON ----------
+
+        private void SaveButton_Click(object sender, RoutedEventArgs e)
+        {
+            var dlg = new SaveFileDialog
+            {
+                FileName = "enemies",
+                DefaultExt = ".json",
+                Filter = "JSON files (*.json)|*.json"
+            };
+
+            if (dlg.ShowDialog() == true)
+            {
+                try
+                {
+                    enemyList.SaveToJson(dlg.FileName);
+                    MessageBox.Show("Список сохранён.");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Не удалось сохранить: " + ex.Message);
+                }
+            }
+        }
+
+        private void LoadButton_Click(object sender, RoutedEventArgs e)
+        {
+            var dlg = new OpenFileDialog
+            {
+                DefaultExt = ".json",
+                Filter = "JSON files (*.json)|*.json"
+            };
+
+            if (dlg.ShowDialog() == true)
+            {
+                try
+                {
+                    enemyList.LoadFromJson(dlg.FileName);
+                    RefreshEnemiesList();
+                }
+                catch (Exception ex)
+                {
+                    // битый или чужой JSON: список при этом остаётся прежним
+                    MessageBox.Show("Не удалось загрузить файл: " + ex.Message);
+                }
+            }
+        }
+
+        // ---------- Вспомогательное ----------
 
         // принимает и запятую, и точку
         private static bool TryParseDouble(string text, out double value)

@@ -7,6 +7,10 @@
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0 0 0 10">
             <Button Content="Выбрать папку с иконками" Padding="10 5"
                     Click="ChooseFolderButton_Click"/>
+            <Button Content="Сохранить в JSON" Margin="10 0 0 0" Padding="10 5"
+                    Click="SaveButton_Click"/>
+            <Button Content="Загрузить из JSON" Margin="10 0 0 0" Padding="10 5"
+                    Click="LoadButton_Click"/>
         </StackPanel>
 
         <!-- Слева: список противников -->
@@ -26,7 +30,7 @@
             <TextBlock Text="Имя"/>
             <TextBox Name="NameTextBox" Margin="0 0 0 5"/>
 
-            <TextBlock Text="Иконка (выбери справа в сетке)"/>
+            <TextBlock Text="Иконка (выбери в сетке слева)"/>
             <TextBlock Name="SelectedIconTextBlock" Text="—" Margin="0 0 0 5"/>
 
             <TextBlock Text="Базовое здоровье"/>
