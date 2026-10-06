@@ -1,16 +1,53 @@
 ﻿<Window x:Class="laba_1.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Редактор противников" Height="500" Width="800">
+        Title="Редактор противников" Height="560" Width="1000">
     <DockPanel Margin="10">
 
         <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="0 0 0 10">
             <Button Content="Выбрать папку с иконками" Padding="10 5"
                     Click="ChooseFolderButton_Click"/>
-            <TextBlock Text="Выбрана иконка: " Margin="20 0 0 0" VerticalAlignment="Center"/>
-            <TextBlock Name="SelectedIconTextBlock" Text="—" VerticalAlignment="Center"/>
         </StackPanel>
 
+        <!-- Слева: список противников -->
+        <StackPanel DockPanel.Dock="Left" Width="200" Margin="0 0 10 0">
+            <TextBlock Text="Список противников" FontWeight="Bold" Margin="0 0 0 5"/>
+            <ListBox Name="EnemiesListBox" Height="300"
+                     SelectionChanged="EnemiesListBox_SelectionChanged"/>
+            <Button Content="Удалить" Margin="0 5 0 0" Padding="10 5"
+                    Click="RemoveButton_Click"/>
+            <TextBlock Name="EnemyInfoTextBlock" TextWrapping="Wrap" Margin="0 10 0 0"/>
+        </StackPanel>
+
+        <!-- Справа: форма нового противника -->
+        <StackPanel DockPanel.Dock="Right" Width="230" Margin="10 0 0 0">
+            <TextBlock Text="Новый противник" FontWeight="Bold" Margin="0 0 0 5"/>
+
+            <TextBlock Text="Имя"/>
+            <TextBox Name="NameTextBox" Margin="0 0 0 5"/>
+
+            <TextBlock Text="Иконка (выбери справа в сетке)"/>
+            <TextBlock Name="SelectedIconTextBlock" Text="—" Margin="0 0 0 5"/>
+
+            <TextBlock Text="Базовое здоровье"/>
+            <TextBox Name="BaseLifeTextBox" Text="100" Margin="0 0 0 5"/>
+
+            <TextBlock Text="Базовое золото"/>
+            <TextBox Name="BaseGoldTextBox" Text="10" Margin="0 0 0 5"/>
+
+            <TextBlock Text="Модификатор здоровья"/>
+            <TextBox Name="LifeModifierTextBox" Text="1" Margin="0 0 0 5"/>
+
+            <TextBlock Text="Модификатор золота"/>
+            <TextBox Name="GoldModifierTextBox" Text="1" Margin="0 0 0 5"/>
+
+            <TextBlock Text="Шанс появления, %"/>
+            <TextBox Name="SpawnChanceTextBox" Text="50" Margin="0 0 0 10"/>
+
+            <Button Content="Добавить" Padding="10 5" Click="AddButton_Click"/>
+        </StackPanel>
+
+        <!-- По центру: сетка иконок -->
         <ListBox Name="IconsListBox"
                  SelectionChanged="IconsListBox_SelectionChanged"
                  ScrollViewer.HorizontalScrollBarVisibility="Disabled">
