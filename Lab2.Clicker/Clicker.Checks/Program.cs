@@ -237,6 +237,7 @@ Expect(one == new BigNumber("1000") - new BigNumber("999"), "Subtraction must re
 
 passed += GameChecks.Run();
 passed += CatalogChecks.Run();
+passed += SessionChecks.Run();
 Console.WriteLine($"Passed: {passed} checks.");
 
 string RandomNumber(Random source, int length)

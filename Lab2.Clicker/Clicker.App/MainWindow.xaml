@@ -1,0 +1,137 @@
+<Window x:Class="Clicker.App.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Кликер — ПиОГИ" Width="1000" Height="760" MinWidth="820" MinHeight="700"
+        Background="#10151E" Foreground="#EDF2FA" FontFamily="Segoe UI"
+        WindowStartupLocation="CenterScreen" Loaded="Window_Loaded">
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel>
+                <TextBlock Text="КЛИКЕР" FontSize="28" FontWeight="Bold"/>
+                <TextBlock Text="ПиОГИ · Лабораторная №2" Style="{StaticResource Caption}" Margin="0,4,0,0"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                <Button Content="Загрузить JSON" Click="LoadJson_Click" Margin="0,0,10,0"
+                        ToolTip="Начать новую игру с выбранными шаблонами"/>
+                <Button Content="Папка иконок" Click="ChooseIcons_Click"/>
+            </StackPanel>
+        </Grid>
+
+        <Grid Grid.Row="1" Margin="0,22,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Border Style="{StaticResource Card}" Margin="0,0,12,0">
+                <StackPanel>
+                    <TextBlock Text="Золото" Style="{StaticResource Caption}"/>
+                    <TextBlock x:Name="GoldValue" Text="—" Style="{StaticResource StatValue}" Foreground="#F4CD73"/>
+                </StackPanel>
+            </Border>
+            <Border Grid.Column="1" Style="{StaticResource Card}" Margin="0,0,12,0">
+                <StackPanel>
+                    <TextBlock Text="Урон за клик" Style="{StaticResource Caption}"/>
+                    <TextBlock x:Name="DamageValue" Text="—" Style="{StaticResource StatValue}"/>
+                </StackPanel>
+            </Border>
+            <Border Grid.Column="2" Style="{StaticResource Card}" Margin="0,0,12,0">
+                <StackPanel>
+                    <TextBlock Text="Уровень игрока" Style="{StaticResource Caption}"/>
+                    <TextBlock x:Name="LevelValue" Text="—" Style="{StaticResource StatValue}"/>
+                </StackPanel>
+            </Border>
+            <Border Grid.Column="3" Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="Побеждено" Style="{StaticResource Caption}"/>
+                    <TextBlock x:Name="VictoriesValue" Text="—" Style="{StaticResource StatValue}"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="290"/>
+            </Grid.ColumnDefinitions>
+            <Border Style="{StaticResource Card}" Margin="0,0,20,0">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel>
+                        <TextBlock x:Name="StageValue" Text="Противник" Style="{StaticResource Caption}"/>
+                        <TextBlock x:Name="EnemyNameValue" Text="Загрузите шаблоны" FontSize="24" FontWeight="SemiBold"
+                                   Margin="0,6,0,0" TextTrimming="CharacterEllipsis"/>
+                    </StackPanel>
+                    <Grid Grid.Row="1" Margin="0,16">
+                        <Button x:Name="AttackButton" Click="Attack_Click" IsEnabled="False"
+                                MaxWidth="270" MaxHeight="250" Padding="20" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                                AutomationProperties.Name="Атаковать противника" ToolTip="Нанести урон: клик, Enter или пробел">
+                            <Grid>
+                                <Image x:Name="EnemyImage" Stretch="Uniform"/>
+                                <TextBlock x:Name="MissingIcon" Text="?" FontSize="72" FontWeight="Bold"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Grid>
+                        </Button>
+                    </Grid>
+                    <StackPanel Grid.Row="2">
+                        <TextBlock x:Name="IconHint" Text="Нажимай на иконку, чтобы атаковать" Style="{StaticResource Caption}"
+                                   TextWrapping="Wrap" TextAlignment="Center" Margin="0,0,0,14"/>
+                        <TextBlock x:Name="HealthValue" Text="Здоровье: —" Margin="0,0,0,8" TextTrimming="CharacterEllipsis"/>
+                        <ProgressBar x:Name="HealthBar" Minimum="0" Maximum="1000" Height="12"
+                                     Foreground="#70DBA0" Background="#29384D" BorderThickness="0"/>
+                        <TextBlock x:Name="RewardValue" Text="Награда: —" Style="{StaticResource Caption}" Margin="0,10,0,0"
+                                   TextTrimming="CharacterEllipsis"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Border Grid.Column="1" Style="{StaticResource Card}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <StackPanel>
+                        <TextBlock Text="Улучшение урона" FontSize="20" FontWeight="SemiBold"/>
+                        <TextBlock Text="Наноси больше урона каждым кликом." Style="{StaticResource Caption}"
+                                   TextWrapping="Wrap" Margin="0,10,0,28"/>
+                        <TextBlock Text="Стоимость" Style="{StaticResource Caption}"/>
+                        <TextBlock x:Name="PriceValue" Text="—" Style="{StaticResource StatValue}" Foreground="#F4CD73"/>
+                        <TextBlock Text="золота" Style="{StaticResource Caption}" Margin="0,4,0,20"/>
+                        <Button x:Name="UpgradeButton" Content="Купить улучшение" Click="Upgrade_Click"
+                                IsEnabled="False" Background="#326DE6" BorderBrush="#518CF5"/>
+                        <TextBlock x:Name="UpgradeHint" Text="Сначала победи противника" Style="{StaticResource Caption}"
+                                   TextWrapping="Wrap" Margin="0,12,0,0"/>
+                    </StackPanel>
+                    <StackPanel Grid.Row="2" Margin="0,20,0,0">
+                        <TextBlock Text="Шаблоны противников" FontWeight="SemiBold"/>
+                        <TextBlock x:Name="TemplatesValue" Text="Не загружены" Style="{StaticResource Caption}"
+                                   TextTrimming="CharacterEllipsis" Margin="0,8,0,0"/>
+                        <TextBlock Text="Загрузка другого JSON начинает новую игру." Style="{StaticResource Caption}"
+                                   TextWrapping="Wrap" Margin="0,10,0,0"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <TextBlock Grid.Row="3" x:Name="StatusText" Text="Загрузка…" Style="{StaticResource Caption}"
+                   TextWrapping="Wrap" Margin="0,18,0,0"/>
+    </Grid>
+</Window>
