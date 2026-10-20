@@ -1,0 +1,11 @@
+[
+  {
+    "Name": "машина литвина",
+    "IconName": "car.png",
+    "BaseLife": 100,
+    "LifeModifier": 1,
+    "BaseGold": 10,
+    "GoldModifier": 1,
+    "SpawnChance": 50
+  }
+]
