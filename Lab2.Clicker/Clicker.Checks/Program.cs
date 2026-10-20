@@ -1,5 +1,6 @@
 using System.Globalization;
 using Clicker.Core;
+using Clicker.Checks;
 
 int passed = 0;
 
@@ -234,6 +235,7 @@ var uniqueNumbers = new HashSet<BigNumber> { one, new BigNumber("0001") };
 Expect(uniqueNumbers.Count == 1, "HashSet must recognize equal numeric values.");
 Expect(one == new BigNumber("1000") - new BigNumber("999"), "Subtraction must remove leading zero blocks.");
 
+passed += GameChecks.Run();
 Console.WriteLine($"Passed: {passed} checks.");
 
 string RandomNumber(Random source, int length)
