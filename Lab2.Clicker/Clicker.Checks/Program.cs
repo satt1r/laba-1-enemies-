@@ -236,6 +236,7 @@ Expect(uniqueNumbers.Count == 1, "HashSet must recognize equal numeric values.")
 Expect(one == new BigNumber("1000") - new BigNumber("999"), "Subtraction must remove leading zero blocks.");
 
 passed += GameChecks.Run();
+passed += CatalogChecks.Run();
 Console.WriteLine($"Passed: {passed} checks.");
 
 string RandomNumber(Random source, int length)

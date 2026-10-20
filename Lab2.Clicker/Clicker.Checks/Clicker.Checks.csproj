@@ -7,5 +7,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="../Clicker.Core/Clicker.Core.csproj" />
+    <None Include="../../assets/templates/enemies.sample.json" Link="Fixtures/enemies.sample.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
