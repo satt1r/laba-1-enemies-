@@ -103,6 +103,32 @@ public sealed class BigNumber : IComparable<BigNumber>, IEquatable<BigNumber>
         return left.Subtract(right);
     }
 
+    public static BigNumber operator *(BigNumber left, BigNumber right)
+    {
+        ArgumentNullException.ThrowIfNull(left);
+        ArgumentNullException.ThrowIfNull(right);
+        return left.Multiply(right);
+    }
+
+    public static BigNumber operator /(BigNumber left, BigNumber right)
+    {
+        ArgumentNullException.ThrowIfNull(left);
+        ArgumentNullException.ThrowIfNull(right);
+        return left.Divide(right);
+    }
+
+    public static BigNumber operator *(BigNumber left, int right) => left * FromNonNegativeInt(right);
+    public static BigNumber operator *(int left, BigNumber right) => FromNonNegativeInt(left) * right;
+    public static BigNumber operator /(BigNumber left, int right) => left / FromNonNegativeInt(right);
+
+    private static BigNumber FromNonNegativeInt(int value)
+    {
+        if (value < 0)
+            throw new ArgumentOutOfRangeException(nameof(value), "Число не может быть отрицательным.");
+
+        return new BigNumber(value.ToString(CultureInfo.InvariantCulture));
+    }
+
     public static bool operator ==(BigNumber? left, BigNumber? right) => object.Equals(left, right);
     public static bool operator !=(BigNumber? left, BigNumber? right) => !object.Equals(left, right);
     public static bool operator <(BigNumber left, BigNumber right) => Compare(left, right) < 0;
@@ -163,6 +189,95 @@ public sealed class BigNumber : IComparable<BigNumber>, IEquatable<BigNumber>
             result[i] = difference;
         }
 
+        return new BigNumber(result);
+    }
+
+    private BigNumber Multiply(BigNumber other)
+    {
+        var result = new int[blocks.Length + other.blocks.Length];
+
+        // Умножение в столбик: каждый блок первого числа на каждый блок второго.
+        for (int i = 0; i < blocks.Length; i++)
+        {
+            int carry = 0;
+            for (int j = 0; j < other.blocks.Length; j++)
+            {
+                // Промежуточное значение меньше миллиона и помещается в int.
+                int product = blocks[i] * other.blocks[j] + result[i + j] + carry;
+                result[i + j] = product % BlockBase;
+                carry = product / BlockBase;
+            }
+
+            result[i + other.blocks.Length] = carry;
+        }
+
+        return new BigNumber(result);
+    }
+
+    private BigNumber Divide(BigNumber divisor)
+    {
+        if (divisor.blocks.Length == 1 && divisor.blocks[0] == 0)
+            throw new DivideByZeroException("Нельзя делить на ноль.");
+
+        var result = new int[blocks.Length];
+        var remainder = new BigNumber(new int[] { 0 });
+
+        // Деление уголком идёт от старшего блока к младшему.
+        for (int i = blocks.Length - 1; i >= 0; i--)
+        {
+            remainder = remainder.AppendBlock(blocks[i]);
+
+            // Следующая цифра частного лежит в диапазоне 0..999.
+            int low = 0;
+            int high = BlockBase - 1;
+            int quotientBlock = 0;
+
+            while (low <= high)
+            {
+                int middle = (low + high) / 2;
+                BigNumber product = divisor.MultiplyBlock(middle);
+
+                if (product.CompareTo(remainder) <= 0)
+                {
+                    quotientBlock = middle;
+                    low = middle + 1;
+                }
+                else
+                {
+                    high = middle - 1;
+                }
+            }
+
+            result[i] = quotientBlock;
+            remainder = remainder.Subtract(divisor.MultiplyBlock(quotientBlock));
+        }
+
+        // Остаток отбрасывается: BigNumber хранит только целые числа.
+        return new BigNumber(result);
+    }
+
+    private BigNumber MultiplyBlock(int factor)
+    {
+        var result = new int[blocks.Length + 1];
+        int carry = 0;
+
+        for (int i = 0; i < blocks.Length; i++)
+        {
+            int product = blocks[i] * factor + carry;
+            result[i] = product % BlockBase;
+            carry = product / BlockBase;
+        }
+
+        result[blocks.Length] = carry;
+        return new BigNumber(result);
+    }
+
+    private BigNumber AppendBlock(int block)
+    {
+        // remainder * 1000 + block: сдвигаем существующие блоки на одну позицию.
+        var result = new int[blocks.Length + 1];
+        result[0] = block;
+        Array.Copy(blocks, 0, result, 1, blocks.Length);
         return new BigNumber(result);
     }
 

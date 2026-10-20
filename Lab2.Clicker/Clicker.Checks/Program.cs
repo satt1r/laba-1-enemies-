@@ -81,6 +81,58 @@ foreach (var example in differences)
     ExpectText(right.ToString(), example.Right);
 }
 
+string largeNines = new string('9', 600);
+string largeSquare = new string('9', 599) + "8" + new string('0', 599) + "1";
+var products = new (string Left, string Right, string Expected)[]
+{
+    ("0", "999999999", "0"),
+    ("1", "1000001", "1000001"),
+    ("999", "999", "998001"),
+    ("7135654", "23", "164120042"),
+    ("1001", "1001", "1002001"),
+    ("999999", "999999", "999998000001"),
+    ("2147483647", "2147483647", "4611686014132420609"),
+    (largeNines, largeNines, largeSquare),
+    (new string('9', 1200), "1000", new string('9', 1200) + "000")
+};
+
+foreach (var example in products)
+{
+    var left = new BigNumber(example.Left);
+    var right = new BigNumber(example.Right);
+    ExpectText((left * right).ToString(), example.Expected);
+    ExpectText((right * left).ToString(), example.Expected);
+    ExpectText(left.ToString(), example.Left);
+    ExpectText(right.ToString(), example.Right);
+}
+
+var quotients = new (string Left, string Right, string Expected)[]
+{
+    ("0", "123", "0"),
+    ("1", "2", "0"),
+    ("10", "3", "3"),
+    ("10014217", "3", "3338072"),
+    ("1000000", "1000", "1000"),
+    ("998001", "999", "999"),
+    ("1002001", "1001", "1001"),
+    ("1000001", "1001", "999"),
+    ("999998000001", "999999", "999999"),
+    ("2147483647", "2147483647", "1"),
+    (new string('9', 1200), "1", new string('9', 1200)),
+    ("1" + new string('0', 1200), "1000", "1" + new string('0', 1197)),
+    (largeSquare, largeNines, largeNines),
+    ("1", largeNines, "0")
+};
+
+foreach (var example in quotients)
+{
+    var left = new BigNumber(example.Left);
+    var right = new BigNumber(example.Right);
+    ExpectText((left / right).ToString(), example.Expected);
+    ExpectText(left.ToString(), example.Left);
+    ExpectText(right.ToString(), example.Right);
+}
+
 CheckComparison("0", "0000", 0);
 CheckComparison("000123", "123", 0);
 CheckComparison("1000000", "999999", 1);
@@ -100,6 +152,17 @@ for (int i = 0; i < 200; i++)
     var right = new BigNumber(rightText);
 
     ExpectText((left + right).ToString(), (leftValue + rightValue).ToString(CultureInfo.InvariantCulture));
+    // long используется только здесь как независимый эталон для небольших чисел.
+    string expectedProduct = ((long)leftValue * rightValue).ToString(CultureInfo.InvariantCulture);
+    ExpectText((left * right).ToString(), expectedProduct);
+    ExpectText((left * rightValue).ToString(), expectedProduct);
+    ExpectText((leftValue * right).ToString(), expectedProduct);
+    if (rightValue != 0)
+    {
+        string expectedQuotient = (leftValue / rightValue).ToString(CultureInfo.InvariantCulture);
+        ExpectText((left / right).ToString(), expectedQuotient);
+        ExpectText((left / rightValue).ToString(), expectedQuotient);
+    }
     CheckComparison(leftText, rightText, leftValue.CompareTo(rightValue));
 
     if (leftValue >= rightValue)
@@ -111,10 +174,32 @@ for (int i = 0; i < 200; i++)
     ExpectText(right.ToString(), rightText);
 }
 
+// Для больших делителей проверяем частное и остаток: a = b * q + r, 0 <= r < b.
+for (int i = 0; i < 25; i++)
+{
+    var divisor = new BigNumber(RandomNumber(random, random.Next(10, 100)));
+    var expectedQuotient = new BigNumber(RandomNumber(random, random.Next(10, 100)));
+    var remainder = new BigNumber("7");
+    BigNumber dividend = divisor * expectedQuotient + remainder;
+    BigNumber quotient = dividend / divisor;
+    BigNumber actualRemainder = dividend - quotient * divisor;
+    Expect(quotient == expectedQuotient, "Large quotient is incorrect.");
+    Expect(actualRemainder == remainder, "Large remainder is incorrect.");
+    Expect(actualRemainder < divisor, "Remainder must be less than divisor.");
+}
+
 var one = new BigNumber("1");
 var zero = new BigNumber("0");
 Expect(!ReferenceEquals(one + zero, one), "Addition must return a new object.");
 Expect(!ReferenceEquals(one - zero, one), "Subtraction must return a new object.");
+Expect(!ReferenceEquals(one * one, one), "Multiplication must return a new object.");
+Expect(!ReferenceEquals(one / one, one), "Division must return a new object.");
+ExpectText((one * 0).ToString(), "0");
+ExpectText((0 * one).ToString(), "0");
+ExpectText((one * int.MaxValue).ToString(), "2147483647");
+ExpectText((new BigNumber("4611686014132420609") / int.MaxValue).ToString(), "2147483647");
+ExpectText((new BigNumber("1000") * 12 / 10).ToString(), "1200");
+ExpectText((new BigNumber("1") * 12 / 10).ToString(), "1");
 ExpectText((one + one).ToString(), "2");
 ExpectText((one - one).ToString(), "0");
 ExpectText(one.ToString(), "1");
@@ -123,6 +208,17 @@ ExpectException<ArgumentNullException>(() => { _ = one + null!; });
 ExpectException<ArgumentNullException>(() => { _ = (BigNumber)null! + one; });
 ExpectException<ArgumentNullException>(() => { _ = one - null!; });
 ExpectException<ArgumentNullException>(() => { _ = (BigNumber)null! - one; });
+ExpectException<ArgumentNullException>(() => { _ = one * null!; });
+ExpectException<ArgumentNullException>(() => { _ = (BigNumber)null! * one; });
+ExpectException<ArgumentNullException>(() => { _ = one / null!; });
+ExpectException<ArgumentNullException>(() => { _ = (BigNumber)null! / one; });
+ExpectException<DivideByZeroException>(() => { _ = one / zero; });
+ExpectException<DivideByZeroException>(() => { _ = zero / zero; });
+ExpectException<DivideByZeroException>(() => { _ = one / new BigNumber("0000"); });
+ExpectException<DivideByZeroException>(() => { _ = one / 0; });
+ExpectException<ArgumentOutOfRangeException>(() => { _ = one * -1; });
+ExpectException<ArgumentOutOfRangeException>(() => { _ = -1 * one; });
+ExpectException<ArgumentOutOfRangeException>(() => { _ = one / -1; });
 ExpectException<ArgumentNullException>(() => { _ = one < null!; });
 ExpectException<ArgumentNullException>(() => { _ = (BigNumber)null! > one; });
 
@@ -139,6 +235,16 @@ Expect(uniqueNumbers.Count == 1, "HashSet must recognize equal numeric values.")
 Expect(one == new BigNumber("1000") - new BigNumber("999"), "Subtraction must remove leading zero blocks.");
 
 Console.WriteLine($"Passed: {passed} checks.");
+
+string RandomNumber(Random source, int length)
+{
+    var digits = new char[length];
+    digits[0] = (char)('0' + source.Next(1, 10));
+    for (int i = 1; i < digits.Length; i++)
+        digits[i] = (char)('0' + source.Next(10));
+
+    return new string(digits);
+}
 
 void CheckComparison(string leftText, string rightText, int expected)
 {
