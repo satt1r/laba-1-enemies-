@@ -1,3 +1,7 @@
+using System.Diagnostics;
+using System.Windows.Media;
+using System.Windows.Threading;
+using TimedClicker.Core;
 using System.Globalization;
 using System.IO;
 using System.Windows;
@@ -14,10 +18,15 @@ public partial class MainWindow : Window
     private string iconsFolder = Path.Combine(AppContext.BaseDirectory, "Assets", "icons");
     private string? displayedIconPath;
     private bool initialized;
+    private readonly Stopwatch clock = new();
+    private readonly DispatcherTimer timer = new() { Interval = TimeSpan.FromMilliseconds(33) };
+    private readonly Dictionary<Collectable, Button> sphereButtons = new();
 
     public MainWindow()
     {
         InitializeComponent();
+        timer.Tick += (_, _) => { Advance(); RefreshGame(); };
+        Closed += (_, _) => { timer.Stop(); clock.Stop(); };
     }
 
     private void Window_Loaded(object sender, RoutedEventArgs e)
@@ -43,6 +52,10 @@ public partial class MainWindow : Window
             EnemyCatalog catalog = EnemyCatalog.LoadFromJson(path);
             var nextSession = new GameSession(catalog);
             session = nextSession;
+            BonusScene.Children.Clear();
+            sphereButtons.Clear();
+            clock.Restart();
+            timer.Start();
 
             string? jsonFolder = Path.GetDirectoryName(path);
             if (jsonFolder is not null && IsIconFileName(session.CurrentEnemy.IconName) &&
@@ -77,11 +90,14 @@ public partial class MainWindow : Window
         if (session is null)
             return;
 
+        Advance();
+        if (!session.CanAttack) return;
+        BigNumber damage = session.EffectiveDamage;
         bool won = session.Attack(out BigNumber reward);
         RefreshGame();
         StatusText.Text = won
             ? $"Победа! Получено {FormatNumber(reward)} золота. Появился следующий противник."
-            : $"Нанесено {FormatNumber(session.Player.Damage)} урона.";
+            : $"Нанесено {FormatNumber(damage)} урона.";
     }
 
     private void Upgrade_Click(object sender, RoutedEventArgs e)
@@ -89,6 +105,7 @@ public partial class MainWindow : Window
         if (session is null)
             return;
 
+        Advance();
         bool upgraded = session.TryUpgrade();
         RefreshGame();
         StatusText.Text = upgraded ? "Урон улучшен!" : "Недостаточно золота для улучшения.";
@@ -102,7 +119,7 @@ public partial class MainWindow : Window
         Player player = session.Player;
         Enemy enemy = session.CurrentEnemy;
         SetNumber(GoldValue, player.Gold);
-        SetNumber(DamageValue, player.Damage);
+        SetNumber(DamageValue, session.EffectiveDamage);
         SetNumber(LevelValue, player.Level);
         SetNumber(VictoriesValue, session.DefeatedEnemies);
         SetNumber(PriceValue, player.UpgradeCost);
@@ -118,10 +135,71 @@ public partial class MainWindow : Window
         // В int переводится только шкала 0..1000, сами характеристики остаются BigNumber.
         BigNumber progress = enemy.Health * 1000 / enemy.MaxHealth;
         HealthBar.Value = int.Parse(progress.ToString(), CultureInfo.InvariantCulture);
-        AttackButton.IsEnabled = true;
+        AttackButton.IsEnabled = session.CanAttack;
+        CooldownValue.Text = $"Интервал атак: {session.EffectiveAttackInterval:F2} с\nДо атаки: {player.AttackCooldown.Remaining:F2} с";
+        CooldownUpgradeButton.IsEnabled = player.CanUpgradeCooldown;
+        CooldownUpgradeButton.Content = player.AttackInterval <= 0.1 ? "Максимальная скорость" : $"Ускорить за {FormatNumber(player.CooldownUpgradeCost)} золота";
+        BonusValue.Text = session.Bonuses.Count == 0 ? "Нет активных бонусов" :
+            string.Join("\n", session.Bonuses.Select(bonus => $"{bonus.Name}: {bonus.Remaining:F1} с"));
+        RefreshSpheres();
         UpgradeButton.IsEnabled = session.CanUpgrade;
         UpgradeHint.Text = session.CanUpgrade ? "Золота достаточно для покупки" : "Зарабатывай золото в боях";
         RefreshIcon(enemy.IconName);
+    }
+
+    private void Advance()
+    {
+        double elapsed = clock.Elapsed.TotalSeconds;
+        clock.Restart();
+        session?.Update(elapsed);
+    }
+
+    private void CooldownUpgrade_Click(object sender, RoutedEventArgs e)
+    {
+        Advance();
+        bool upgraded = session?.Player.TryUpgradeCooldown() == true;
+        RefreshGame();
+        StatusText.Text = upgraded ? "Интервал следующих атак уменьшен." : "Улучшение недоступно.";
+    }
+
+    private void RefreshSpheres()
+    {
+        if (session is null) return;
+        foreach (var old in sphereButtons.Keys.Where(key => !session.BonusController.Objects.Contains(key)).ToArray())
+        {
+            BonusScene.Children.Remove(sphereButtons[old]);
+            sphereButtons.Remove(old);
+        }
+        foreach (Collectable sphere in session.BonusController.Objects)
+        {
+            if (sphereButtons.ContainsKey(sphere)) continue;
+            var button = new Button { Content = sphere.Label, Width = sphere.Radius * 2, Height = sphere.Radius * 2,
+                Padding = new Thickness(0), Background = (Brush)new BrushConverter().ConvertFromString(sphere.Color)!,
+                Foreground = Brushes.White, ToolTip = "Собрать бонус " + sphere.Label };
+            // Круглая форма для каждой сферы; элемент остаётся доступной с клавиатуры кнопкой.
+            var border = new FrameworkElementFactory(typeof(Border));
+            border.SetValue(Border.CornerRadiusProperty, new CornerRadius(sphere.Radius));
+            border.SetValue(Border.BackgroundProperty, button.Background);
+            border.SetValue(Border.BorderBrushProperty, Brushes.White);
+            border.SetValue(Border.BorderThicknessProperty, new Thickness(2));
+            var content = new FrameworkElementFactory(typeof(ContentPresenter));
+            content.SetValue(FrameworkElement.HorizontalAlignmentProperty, HorizontalAlignment.Center);
+            content.SetValue(FrameworkElement.VerticalAlignmentProperty, VerticalAlignment.Center);
+            border.AppendChild(content);
+            button.Template = new ControlTemplate(typeof(Button)) { VisualTree = border };
+            button.Clip = new EllipseGeometry(new Point(sphere.Radius, sphere.Radius), sphere.Radius, sphere.Radius);
+            button.Click += (_, args) =>
+            {
+                Advance();
+                if (session.BonusController.Collect(sphere)) StatusText.Text = "Бонус собран: " + sphere.Label;
+                args.Handled = true;
+                RefreshGame();
+            };
+            Canvas.SetLeft(button, sphere.X - sphere.Radius);
+            Canvas.SetTop(button, sphere.Y - sphere.Radius);
+            sphereButtons.Add(sphere, button);
+            BonusScene.Children.Add(button);
+        }
     }
 
     private void RefreshIcon(string iconName)

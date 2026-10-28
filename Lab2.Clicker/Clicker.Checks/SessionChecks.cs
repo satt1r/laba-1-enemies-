@@ -16,15 +16,15 @@ internal static class SessionChecks
         Enemy firstEnemy = game.CurrentEnemy;
         Check(!game.CanUpgrade, "A new player must not afford an upgrade.");
         Check(!game.TryUpgrade(), "An unaffordable session upgrade must fail.");
-        Check(!game.Attack(out BigNumber reward), "The first attack must be nonlethal.");
+        Check(!Attack(game, out BigNumber reward), "The first attack must be nonlethal.");
         CheckText(reward, "0");
         CheckText(game.CurrentEnemy.Health, "15");
         CheckText(game.Player.Gold, "0");
         CheckText(game.Stage, "1");
         CheckText(game.DefeatedEnemies, "0");
         Check(ReferenceEquals(firstEnemy, game.CurrentEnemy), "A nonlethal attack must keep the same enemy.");
-        Check(!game.Attack(out _), "The second attack must be nonlethal.");
-        Check(game.Attack(out reward), "The third attack must win.");
+        Check(!Attack(game, out _), "The second attack must be nonlethal.");
+        Check(Attack(game, out reward), "The third attack must win.");
         CheckText(reward, "15");
         CheckText(game.Player.Gold, "15");
         CheckText(game.Stage, "2");
@@ -43,8 +43,8 @@ internal static class SessionChecks
         CheckText(game.Player.UpgradeCost, "12");
         CheckText(game.Stage, "2");
         for (int i = 0; i < 4; i++)
-            Check(!game.Attack(out _), "The second enemy must survive its first four upgraded attacks.");
-        Check(game.Attack(out reward), "The fifth upgraded attack must defeat the second enemy.");
+            Check(!Attack(game, out _), "The second enemy must survive its first four upgraded attacks.");
+        Check(Attack(game, out reward), "The fifth upgraded attack must defeat the second enemy.");
         CheckText(reward, "30");
         CheckText(game.Player.Gold, "35");
         CheckText(game.DefeatedEnemies, "2");
@@ -57,7 +57,7 @@ internal static class SessionChecks
         int victories = 0;
         for (int i = 0; i < 100; i++)
         {
-            if (sampleGame.Attack(out reward))
+            if (Attack(sampleGame, out reward))
                 victories++;
         }
         Check(victories == 10, "The real editor sample must allow ten victories in one hundred clicks.");
@@ -80,6 +80,12 @@ internal static class SessionChecks
         }
 
         return passed;
+
+        bool Attack(GameSession target, out BigNumber reward)
+        {
+            target.Update(target.Player.AttackCooldown.Remaining);
+            return target.Attack(out reward);
+        }
 
         void CheckText(BigNumber actual, string expected) =>
             Check(actual.ToString() == expected, $"Expected {expected}, got {actual}.");

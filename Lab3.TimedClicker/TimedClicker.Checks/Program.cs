@@ -59,9 +59,11 @@ var blocked = new TimedGame(30, new Random(1));
 blocked.Update(2);
 var top = blocked.Objects[^1];
 Check(blocked.Click(top.X, top.Y), "First click accepted.");
-Check(!blocked.Click(0, 0) && !blocked.Player.Cooldown.IsReady, "Rapid click is blocked.");
-blocked.Update(1);
+var next = blocked.Objects[0];
+Check(!blocked.Click(next.X, next.Y) && blocked.Objects.Contains(next), "Rapid click on a real sphere is blocked.");
+blocked.Update(0.5);
 Check(blocked.Player.Cooldown.IsReady, "Controller advances player cooldown.");
+Check(blocked.Click(next.X, next.Y), "Same sphere can be collected after cooldown.");
 for (int i = 0; i < 100; i++)
 {
     bonusGame.Player.ReduceCooldown(); bonusGame.AccelerateSpawning(); bonusGame.ExtendLifetime();

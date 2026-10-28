@@ -1,3 +1,5 @@
+using TimedClicker.Core;
+
 namespace Clicker.Core;
 
 public sealed class Player
@@ -9,6 +11,19 @@ public sealed class Player
     public BigNumber Damage { get; private set; }
     public BigNumber UpgradeCost { get; private set; }
     public BigNumber Level { get; private set; }
+    public Cooldown AttackCooldown { get; } = new();
+    public double AttackInterval { get; private set; } = 0.5;
+    public BigNumber CooldownUpgradeCost { get; private set; } = new("100");
+    public bool CanUpgradeCooldown => AttackInterval > 0.1 && Gold >= CooldownUpgradeCost;
+
+    public bool TryUpgradeCooldown()
+    {
+        if (!CanUpgradeCooldown) return false;
+        Gold -= CooldownUpgradeCost;
+        AttackInterval = Math.Max(0.1, AttackInterval * 0.8);
+        CooldownUpgradeCost *= 2;
+        return true;
+    }
 
     public Player() : this(new BigNumber("0"), new BigNumber("10"), new BigNumber("100"))
     {

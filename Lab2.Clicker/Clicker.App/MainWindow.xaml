@@ -1,7 +1,7 @@
 <Window x:Class="Clicker.App.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Кликер — ПиОГИ" Width="1000" Height="760" MinWidth="820" MinHeight="700"
+        Title="Кликер — ПиОГИ" Width="1000" Height="900" MinWidth="820" MinHeight="850"
         Background="#10151E" Foreground="#EDF2FA" FontFamily="Segoe UI"
         WindowStartupLocation="CenterScreen" Loaded="Window_Loaded">
     <Grid Margin="24">
@@ -19,7 +19,7 @@
             </Grid.ColumnDefinitions>
             <StackPanel>
                 <TextBlock Text="КЛИКЕР" FontSize="28" FontWeight="Bold"/>
-                <TextBlock Text="ПиОГИ · Лабораторная №2" Style="{StaticResource Caption}" Margin="0,4,0,0"/>
+                <TextBlock Text="ПиОГИ · Лабораторные №2–3" Style="{StaticResource Caption}" Margin="0,4,0,0"/>
             </StackPanel>
             <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
                 <Button Content="Загрузить JSON" Click="LoadJson_Click" Margin="0,0,10,0"
@@ -88,6 +88,9 @@
                                            HorizontalAlignment="Center" VerticalAlignment="Center"/>
                             </Grid>
                         </Button>
+                        <Viewbox Stretch="Uniform">
+                            <Canvas x:Name="BonusScene" Width="400" Height="300" ClipToBounds="True"/>
+                        </Viewbox>
                     </Grid>
                     <StackPanel Grid.Row="2">
                         <TextBlock x:Name="IconHint" Text="Нажимай на иконку, чтобы атаковать" Style="{StaticResource Caption}"
@@ -117,6 +120,10 @@
                         <TextBlock Text="золота" Style="{StaticResource Caption}" Margin="0,4,0,20"/>
                         <Button x:Name="UpgradeButton" Content="Купить улучшение" Click="Upgrade_Click"
                                 IsEnabled="False" Background="#326DE6" BorderBrush="#518CF5"/>
+                        <TextBlock x:Name="CooldownValue" Margin="0,18,0,8" TextWrapping="Wrap"/>
+                        <Button x:Name="CooldownUpgradeButton" Click="CooldownUpgrade_Click" Content="Ускорить атаки"/>
+                        <TextBlock x:Name="BonusValue" Margin="0,14,0,0" TextWrapping="Wrap"/>
+                        <TextBlock Text="Сферы: ×2 — урон; К — скорость; +З — золото. Нажми на сферу, чтобы собрать." Style="{StaticResource Caption}" TextWrapping="Wrap" Margin="0,12,0,0"/>
                         <TextBlock x:Name="UpgradeHint" Text="Сначала победи противника" Style="{StaticResource Caption}"
                                    TextWrapping="Wrap" Margin="0,12,0,0"/>
                     </StackPanel>

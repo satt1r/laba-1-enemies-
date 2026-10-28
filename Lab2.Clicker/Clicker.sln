@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Clicker.Checks", "Clicker.C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Clicker.App", "Clicker.App\Clicker.App.csproj", "{A1E42729-B641-4B3D-B511-5CA29776D423}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TimedClicker.Core", "..\Lab3.TimedClicker\TimedClicker.Core\TimedClicker.Core.csproj", "{C0ED5AD8-89C0-4EE9-B438-7FBD377387DD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,18 @@ Global
 		{A1E42729-B641-4B3D-B511-5CA29776D423}.Release|x64.Build.0 = Release|Any CPU
 		{A1E42729-B641-4B3D-B511-5CA29776D423}.Release|x86.ActiveCfg = Release|Any CPU
 		{A1E42729-B641-4B3D-B511-5CA29776D423}.Release|x86.Build.0 = Release|Any CPU
+		{C0ED5AD8-89C0-4EE9-B438-7FBD377387DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C0ED5AD8-89C0-4EE9-B438-7FBD377387DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C0ED5AD8-89C0-4EE9-B438-7FBD377387DD}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{C0ED5AD8-89C0-4EE9-B438-7FBD377387DD}.Debug|x64.Build.0 = Debug|Any CPU
+		{C0ED5AD8-89C0-4EE9-B438-7FBD377387DD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C0ED5AD8-89C0-4EE9-B438-7FBD377387DD}.Debug|x86.Build.0 = Debug|Any CPU
+		{C0ED5AD8-89C0-4EE9-B438-7FBD377387DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C0ED5AD8-89C0-4EE9-B438-7FBD377387DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C0ED5AD8-89C0-4EE9-B438-7FBD377387DD}.Release|x64.ActiveCfg = Release|Any CPU
+		{C0ED5AD8-89C0-4EE9-B438-7FBD377387DD}.Release|x64.Build.0 = Release|Any CPU
+		{C0ED5AD8-89C0-4EE9-B438-7FBD377387DD}.Release|x86.ActiveCfg = Release|Any CPU
+		{C0ED5AD8-89C0-4EE9-B438-7FBD377387DD}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
