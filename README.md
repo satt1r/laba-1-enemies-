@@ -13,6 +13,11 @@ Lab2.Clicker/                 Игра-кликер (лаба 2)
   Clicker.App/                WPF-приложение кликера
   Clicker.Core/               BigNumber и будущая игровая логика
   Clicker.Checks/             Проверки игровой логики без сторонних библиотек
+Lab3.TimedClicker/            Кликер на время и бонусные сферы (лаба 3)
+  TimedClicker.sln            Решение мини-игры
+  TimedClicker.App/           WPF-интерфейс
+  TimedClicker.Core/          Контроллер, абстрактные сферы и перезарядка
+  TimedClicker.Checks/        Консольные проверки
 assets/
   icons/                      Иконки противников
   templates/
@@ -56,7 +61,16 @@ dotnet run --project "Lab2.Clicker/Clicker.App/Clicker.App.csproj"
 dotnet run --project "Lab2.Clicker/Clicker.Checks/Clicker.Checks.csproj"
 ```
 
-План: собственный неизменяемый BigNumber, классы игрока и активного противника, загрузка шаблонов, выбор противников по шансам, бой и улучшение урона.
+## Лаба 3: абстракция, наследование, полиморфизм
+
+Задания 1–2: самостоятельная мини-игра в `Lab3.TimedClicker/TimedClicker.sln`. Задание 3: перезарядка атак, её улучшение за золото и бонусные сферы добавлены в существующий `Lab2.Clicker`. Общие `Collectable` и `Cooldown` повторно используются через ссылку на `TimedClicker.Core`.
+
+```powershell
+dotnet run --project Lab3.TimedClicker/TimedClicker.App
+dotnet run --project Lab3.TimedClicker/TimedClicker.Checks
+```
+
+Правила бонусов, структура классов, объяснения для защиты и сценарии ручной проверки — в [README лабы 3](Lab3.TimedClicker/README.md). WPF-окна запускаются на Windows; консольные проверки работают также на macOS/Linux.
 
 ## Работа с Git
 
