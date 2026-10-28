@@ -54,13 +54,19 @@ public partial class MainWindow : Window
         foreach (var item in game.Objects)
         {
             var shape = new Ellipse { Width = item.Radius * 2, Height = item.Radius * 2,
-                Fill = Brushes.MediumPurple, Stroke = Brushes.White, StrokeThickness = 2,
+                Fill = (Brush)new BrushConverter().ConvertFromString(item.Color)!, Stroke = Brushes.White, StrokeThickness = 2,
                 IsHitTestVisible = false };
             Canvas.SetLeft(shape, item.X - item.Radius);
             Canvas.SetTop(shape, item.Y - item.Radius);
             Scene.Children.Add(shape);
+            var label = new TextBlock { Text = item.Label, Foreground = Brushes.White,
+                Width = item.Radius * 2, TextAlignment = TextAlignment.Center, FontWeight = FontWeights.Bold,
+                IsHitTestVisible = false };
+            Canvas.SetLeft(label, item.X - item.Radius);
+            Canvas.SetTop(label, item.Y - 8);
+            Scene.Children.Add(label);
         }
-        Stats.Text = $"Осталось: {game.Remaining:F1} с   •   Очки: {game.Score:F1}";
-        Hint.Text = game.IsRunning ? "Попади по кругу, пока он не исчез!" : $"Время вышло! Результат: {game.Score:F1}. Можно начать заново.";
+        Stats.Text = $"Осталось: {game.Remaining:F1} с   •   Очки: {game.Score:F1}   •   Клик через: {game.Player.Cooldown.Remaining:F1} с";
+        Hint.Text = game.IsRunning ? "+ — очки; К — быстрее клик; Ж — дольше живут новые сферы; С — чаще появляются. Бонусы действуют до конца раунда." : $"Время вышло! Результат: {game.Score:F1}. Можно начать заново.";
     }
 }

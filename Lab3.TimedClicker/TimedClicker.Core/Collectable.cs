@@ -1,14 +1,16 @@
 namespace TimedClicker.Core;
 
-public class ClickableCircle
+public abstract class Collectable
 {
     public double X { get; }
     public double Y { get; }
     public double Radius { get; }
     public double Remaining { get; private set; }
-    public double Points { get; }
+    public bool IsCollected { get; private set; }
+    public abstract string Label { get; }
+    public abstract string Color { get; }
 
-    public ClickableCircle(double x, double y, double radius, double lifetime)
+    protected Collectable(double x, double y, double radius, double lifetime)
     {
         if (!double.IsFinite(x) || !double.IsFinite(y) || !double.IsFinite(radius) || radius <= 0 ||
             !double.IsFinite(lifetime) || lifetime <= 0)
@@ -17,8 +19,18 @@ public class ClickableCircle
         Y = y;
         Radius = radius;
         Remaining = lifetime;
-        Points = 1000 / (radius * 2 * lifetime);
     }
+
+    public bool TryCollect()
+    {
+        if (IsCollected || Remaining <= 0) return false;
+        IsCollected = true;
+        OnClick();
+        return true;
+    }
+
+    // Конкретный эффект обязателен у каждого неабстрактного наследника.
+    protected abstract void OnClick();
 
     public bool Contains(double x, double y) =>
         (x - X) * (x - X) + (y - Y) * (y - Y) <= Radius * Radius;
