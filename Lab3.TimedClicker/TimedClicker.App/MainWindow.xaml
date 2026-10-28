@@ -1,0 +1,18 @@
+<Window x:Class="TimedClicker.App.MainWindow"
+ xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ Title="Лаба 3 — Кликер на время" Width="900" Height="650" MinWidth="620" MinHeight="480"
+ Background="#10151E" Foreground="#EDF2FA" WindowStartupLocation="CenterScreen">
+ <Grid Margin="24">
+  <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions>
+  <DockPanel>
+   <Button DockPanel.Dock="Right" Content="Начать заново" Click="Start_Click" Padding="18,8"/>
+   <TextBlock Text="КЛИКЕР НА ВРЕМЯ" FontSize="25" FontWeight="Bold"/>
+  </DockPanel>
+  <TextBlock x:Name="Stats" Grid.Row="1" FontSize="18" Margin="0,18"/>
+  <Viewbox Grid.Row="2" Stretch="Uniform">
+   <Canvas x:Name="Scene" Width="760" Height="420" Background="#202C40" ClipToBounds="True" MouseLeftButtonDown="Scene_Click"/>
+  </Viewbox>
+  <TextBlock x:Name="Hint" Grid.Row="3" Text="Нажми «Начать заново». Собирай круги за 30 секунд." TextWrapping="Wrap" Margin="0,18,0,0"/>
+ </Grid>
+</Window>
